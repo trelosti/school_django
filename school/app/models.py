@@ -10,7 +10,6 @@ import logging
 from decouple import config
 
 
-msg = MIMEMultipart()
 logger = logging.getLogger(__name__)
 
 HOST = config('MAIL_HOST')
@@ -45,6 +44,8 @@ class Student(models.Model):
 def send_student_creation_notification(sender, instance, created, **kwargs):
     if created:
         # logger.warning("New student created: {}".format(instance.email))
+        msg = MIMEMultipart()
+
         message = "Welcome to the school"
         msg['From'] = USERNAME
         msg['To'] = instance.email

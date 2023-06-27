@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from .forms import UserCreationForm
+from .forms import UserCreationForm, EmailForm
 from .models import Student
 from rest_framework import generics
 from .serializers import StudentSerializer
@@ -23,11 +23,13 @@ class StudentList(generics.ListAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+
 @method_decorator(login_required, name='dispatch')
 class StudentDetail(generics.RetrieveAPIView):
     model = Student
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+
 
 @method_decorator(login_required, name='dispatch')
 class StudentUpdate(generics.RetrieveUpdateAPIView):
@@ -35,11 +37,13 @@ class StudentUpdate(generics.RetrieveUpdateAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+
 @method_decorator(login_required, name='dispatch')
 class StudentDelete(generics.RetrieveDestroyAPIView):
     model = Student
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+
 
 class Register(View):
     template_name = 'registration/register.html'
@@ -60,6 +64,29 @@ class Register(View):
             password = form.cleaned_data.get('password1')
             user = authenticate(phone_number=phone_number, password=password)
             login(request, user)
+            return redirect('home')
+        context = {
+            'form': form
+        }
+
+        return render(request, self.template_name, context)
+
+
+class Email(View):
+    template_name = 'email.html'
+
+    def get(self, request):
+        context = {
+            'form': EmailForm()
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = EmailForm(request.POST)
+
+        if form.is_valid():
+            form.send()
             return redirect('home')
         context = {
             'form': form
