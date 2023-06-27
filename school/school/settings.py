@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'school',
         'USER': 'postgres',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '',
     }
 }
@@ -108,6 +108,28 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    # The version number of our log
+    'disable_existing_loggers': False,
+    # A handler for WARNING.
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'warning.log',
+        },
+    },
+    # A logger for WARNING which has a handler called 'file'. A logger can have multiple handler
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Internationalization

@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from .models import Group
 
 User = get_user_model()
 
 class UserCreationForm(UserCreationForm):
     phone_number = forms.CharField(required=True)
-    group = forms.CharField(required=True)
+    group = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
     subject_name = forms.CharField(required=True)
 
     class Meta(UserCreationForm.Meta):

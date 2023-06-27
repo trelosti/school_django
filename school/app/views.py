@@ -12,29 +12,32 @@ from .serializers import StudentSerializer
 
 @method_decorator(login_required, name='dispatch')
 class StudentCreate(generics.CreateAPIView):
+    model = Student
     queryset = Student.objects.all(),
     serializer_class = StudentSerializer
 
 
 @method_decorator(login_required, name='dispatch')
 class StudentList(generics.ListAPIView):
+    model = Student
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 @method_decorator(login_required, name='dispatch')
 class StudentDetail(generics.RetrieveAPIView):
+    model = Student
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 @method_decorator(login_required, name='dispatch')
 class StudentUpdate(generics.RetrieveUpdateAPIView):
-    # API endpoint that allows a customer record to be updated.
+    model = Student
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 @method_decorator(login_required, name='dispatch')
 class StudentDelete(generics.RetrieveDestroyAPIView):
-    # API endpoint that allows a customer record to be deleted.
+    model = Student
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 

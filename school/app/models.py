@@ -3,6 +3,20 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
+import logging
+from decouple import config
+
+
+msg = MIMEMultipart()
+logger = logging.getLogger(__name__)
+
+HOST = config('MAIL_HOST')
+PORT = config('MAIL_PORT')
+PASSWORD = config('MAIL_PASSWORD')
+USERNAME = config('MAIL_USERNAME')
 
 
 class Student(models.Model):
@@ -15,7 +29,7 @@ class Student(models.Model):
     last_name = models.CharField("last_name", max_length=255)
     email = models.EmailField("email")
     birth_date = models.DateField("date_of_birth")
-    group = models.CharField("class", max_length=127)
+    group = models.ForeignKey('Group', on_delete=models.PROTECT)
     address = models.CharField("address", max_length=255)
     sex = models.CharField(
         "sex",
@@ -30,15 +44,42 @@ class Student(models.Model):
 @receiver(post_save, sender=Student)
 def send_student_creation_notification(sender, instance, created, **kwargs):
     if created:
-        print("New student created: {}".format(instance.email))
+        # logger.warning("New student created: {}".format(instance.email))
+        message = "Welcome to the school"
+        msg['From'] = USERNAME
+        msg['To'] = instance.email
+        msg['Subject'] = "School"
+        msg.attach(MIMEText(message, 'plain'))
 
+        server = smtplib.SMTP(HOST, PORT)
+        server.starttls()
+
+        server.login(msg['From'], PASSWORD)
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+        server.quit()
 
 class Teacher(AbstractUser):
     phone_number = models.CharField("phone_number", max_length=20, default="0", unique=True)
-    group = models.CharField("class", max_length=10, default="1-A")
+    group = models.OneToOneField('Group', on_delete=models.PROTECT)
     subject_name = models.CharField("subject_name", max_length=255, default="none")
 
     USERNAME_FIELD = 'phone_number'
 
     def __str__(self):
         return self.username
+
+
+class Group(models.Model):
+    name = models.CharField("name", max_length=32)
+    school = models.ForeignKey('School', on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.name
+
+
+class School(models.Model):
+    name = models.CharField("name", max_length=32)
+
+    def __str__(self):
+        return self.name
