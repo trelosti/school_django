@@ -68,3 +68,9 @@ class EmailForm(forms.Form):
         server.sendmail(msg['From'], receivers, msg.as_string())
 
         server.quit()
+
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = '__all__'

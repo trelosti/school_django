@@ -1,48 +1,10 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.utils.decorators import method_decorator
 from django.views import View
 
-from .forms import UserCreationForm, EmailForm
+from .forms import UserCreationForm, EmailForm, StudentForm
 from .models import Student
-from rest_framework import generics
-from .serializers import StudentSerializer
-
-
-@method_decorator(login_required, name='dispatch')
-class StudentCreate(generics.CreateAPIView):
-    model = Student
-    queryset = Student.objects.all(),
-    serializer_class = StudentSerializer
-
-
-@method_decorator(login_required, name='dispatch')
-class StudentList(generics.ListAPIView):
-    model = Student
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
-
-
-@method_decorator(login_required, name='dispatch')
-class StudentDetail(generics.RetrieveAPIView):
-    model = Student
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
-
-
-@method_decorator(login_required, name='dispatch')
-class StudentUpdate(generics.RetrieveUpdateAPIView):
-    model = Student
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
-
-
-@method_decorator(login_required, name='dispatch')
-class StudentDelete(generics.RetrieveDestroyAPIView):
-    model = Student
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
 
 
 class Register(View):
@@ -93,3 +55,56 @@ class Email(View):
         }
 
         return render(request, self.template_name, context)
+
+
+@login_required()
+# Create your views here.
+def studentList(request):
+    students = Student.objects.all()
+    return render(request, "student-list.html", {'students': students})
+
+
+@login_required()
+def studentCreate(request):
+    if request.method == "POST":
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                model = form.instance
+                return redirect('student-list')
+            except:
+                pass
+    else:
+        form = StudentForm()
+    return render(request, 'student-create.html', {'form': form})
+
+
+@login_required()
+def studentUpdate(request, id):
+    student = Student.objects.get(id=id)
+    form = StudentForm(
+        initial={'name': student.name, 'last_name': student.last_name,
+                 'email': student.email, 'birth_date': student.birth_date,
+                 'group': student.group, 'address': student.address, 'sex': student.sex})
+
+    if request.method == "POST":
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            try:
+                form.save()
+                model = form.instance
+                return redirect('student-list')
+            except Exception as e:
+                pass
+    return render(request, 'student-update.html', {'form': form})
+
+
+@login_required()
+def studentDelete(request, id):
+    student = Student.objects.get(id=id)
+    try:
+        student.delete()
+    except:
+        pass
+    return redirect('student-list')
