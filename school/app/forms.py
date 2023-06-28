@@ -58,16 +58,20 @@ class EmailForm(forms.Form):
         for student in Student.objects.all():
             receivers.append(student.email)
 
-        msg['Subject'] = "School"
-        msg.attach(MIMEText(message, 'plain'))
+        if receivers:
+            msg['To'] = ", ".join(receivers)
+            msg['Subject'] = "School"
+            msg.attach(MIMEText(message, 'plain'))
 
-        server = smtplib.SMTP(HOST, PORT)
-        server.starttls()
+            server = smtplib.SMTP(HOST, PORT)
+            server.starttls()
 
-        server.login(msg['From'], PASSWORD)
-        server.sendmail(msg['From'], receivers, msg.as_string())
+            server.login(msg['From'], PASSWORD)
+            server.send_message(msg)
 
-        server.quit()
+            server.quit()
+        else:
+            pass
 
 
 class StudentForm(forms.ModelForm):

@@ -24,12 +24,12 @@ class Student(models.Model):
         FEMALE = 'F', _('Female')
         OTHER = 'O', _('Other')
 
-    name = models.CharField("name", max_length=255)
-    last_name = models.CharField("last_name", max_length=255)
-    email = models.EmailField("email")
-    birth_date = models.DateField("date_of_birth")
+    name = models.CharField("name", max_length=255, null=False)
+    last_name = models.CharField("last_name", max_length=255, null=False)
+    email = models.EmailField("email", unique=True, null=False)
+    birth_date = models.DateField("date_of_birth", null=False)
     group = models.ForeignKey('Group', on_delete=models.PROTECT)
-    address = models.CharField("address", max_length=255)
+    address = models.CharField("address", max_length=255, null=False)
     sex = models.CharField(
         "sex",
         max_length=1,
